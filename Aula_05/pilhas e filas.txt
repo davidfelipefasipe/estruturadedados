@@ -1,0 +1,171 @@
+//https://onecompiler.com/c
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura base de um Nó reutilizada por ambas as estruturas
+typedef struct No {
+    int dado;
+    struct No *prox;
+} No;
+
+// ==========================================
+// ESTRUTURA E OPERAÇÕES DA PILHA (LIFO)
+// ==========================================
+typedef struct {
+    No *topo;
+} Pilha;
+
+void inicializarPilha(Pilha *p) {
+    p->topo = NULL;
+}
+
+int pilhaVazia(Pilha *p) {
+    return p->topo == NULL;
+}
+
+void empilhar(Pilha *p, int valor) {
+    No *novo = (No*) malloc(sizeof(No));
+    if (novo == NULL) {
+        printf("Erro ao alocar memoria para a pilha.\n");
+        return;
+    }
+    novo->dado = valor;
+    novo->prox = p->topo;
+    p->topo = novo;
+}
+
+int desempilhar(Pilha *p) {
+    if (pilhaVazia(p)) {
+        printf("Pilha vazia! Nao e possivel desempilhar.\n");
+        return -1;
+    }
+    No *temp = p->topo;
+    int valor = temp->dado;
+    p->topo = p->topo->prox;
+    free(temp);
+    return valor;
+}
+
+int topo(Pilha *p) {
+    if (pilhaVazia(p)) {
+        printf("Pilha vazia!\n");
+        return -1;
+    }
+    return p->topo->dado;
+}
+
+void liberarPilha(Pilha *p) {
+    while (!pilhaVazia(p)) {
+        desempilhar(p);
+    }
+}
+
+// ==========================================
+// ESTRUTURA E OPERAÇÕES DA FILA (FIFO)
+// ==========================================
+typedef struct {
+    No *inicio;
+    No *fim;
+} Fila;
+
+void inicializarFila(Fila *f) {
+    f->inicio = NULL;
+    f->fim = NULL;
+}
+
+int filaVazia(Fila *f) {
+    return f->inicio == NULL;
+}
+
+void enfileirar(Fila *f, int valor) {
+    No *novo = (No*) malloc(sizeof(No));
+    if (novo == NULL) {
+        printf("Erro ao alocar memoria para a fila.\n");
+        return;
+    }
+    novo->dado = valor;
+    novo->prox = NULL;
+
+    if (filaVazia(f)) {
+        f->inicio = novo;
+    } else {
+        f->fim->prox = novo;
+    }
+    f->fim = novo;
+}
+
+int desenfileirar(Fila *f) {
+    if (filaVazia(f)) {
+        printf("Fila vazia! Nao e possivel desenfileirar.\n");
+        return -1;
+    }
+    No *temp = f->inicio;
+    int valor = temp->dado;
+    f->inicio = f->inicio->prox;
+
+    if (f->inicio == NULL) {
+        f->fim = NULL;
+    }
+    free(temp);
+    return valor;
+}
+
+int frente(Fila *f) {
+    if (filaVazia(f)) {
+        printf("Fila vazia!\n");
+        return -1;
+    }
+    return f->inicio->dado;
+}
+
+void liberarFila(Fila *f) {
+    while (!filaVazia(f)) {
+        desenfileirar(f);
+    }
+}
+
+// ==========================================
+// FUNÇÃO PRINCIPAL (TESTES)
+// ==========================================
+int main() {
+    printf("--- TESTE DA PILHA (LIFO) ---\n");
+    Pilha p;
+    inicializarPilha(&p);
+
+    empilhar(&p, 10);
+    empilhar(&p, 20);
+    empilhar(&p, 30);
+
+    printf("Elemento no topo: %d\n", topo(&p));
+    printf("Desempilhado: %d\n", desempilhar(&p));
+    printf("Novo topo: %d\n", topo(&p));
+    printf("Desempilhado: %d\n", desempilhar(&p));
+    printf("Desempilhado: %d\n", desempilhar(&p));
+
+
+    desempilhar(&p);
+
+    liberarPilha(&p);
+
+    printf("\n--- TESTE DA FILA (FIFO) ---\n");
+    Fila f;
+    inicializarFila(&f);
+
+    enfileirar(&f, 100);
+    enfileirar(&f, 200);
+    enfileirar(&f, 300);
+
+    printf("Elemento na frente: %d\n", frente(&f));
+    printf("Desenfileirado: %d\n", desenfileirar(&f));
+    printf("Nova frente: %d\n", frente(&f));
+    printf("Desenfileirado: %d\n", desenfileirar(&f));
+    printf("Desenfileirado: %d\n", desenfileirar(&f));
+
+    // Teste de fila vazia
+    desenfileirar(&f);
+
+    liberarFila(&f);
+
+    return 0;
+}
